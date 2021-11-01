@@ -1,0 +1,169 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["referentialIntegrity"]
+  binaryTargets   = ["native", "rhel-openssl-1.0.x"]
+}
+
+datasource db {
+  provider             = "mysql"
+  url                  = env("DATABASE_URL")
+  shadowDatabaseUrl    = env("SHADOW_DATABASE_URL")
+  referentialIntegrity = "prisma"
+
+
+}
+
+model ElasticMappingLog {
+  id                     Int       @id @default(autoincrement())
+  file_name              String    @unique @db.VarChar(255)
+  index_type             String    @db.VarChar(255)
+  index_id               String?   @db.VarChar(255)
+  mapping_implemented_at DateTime
+  index_implemented_at   DateTime?
+}
+
+model Image {
+  id             Int       @id @default(autoincrement())
+  order_number   Int?      @default(0)
+  url            String?
+  blur_base64    String?
+  fileName       String?
+  caption        String?   @db.VarChar(255)
+  origin         String    @db.VarChar(255)
+  isProfileImage Boolean
+  published      Boolean   @default(true)
+  created_at     DateTime  @default(now())
+  updated_at     DateTime  @default(now())
+  user_id        String    @db.VarChar(255)
+  location_id    Int?
+  location       Location? @relation(fields: [location_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  user           User      @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model Location {
+  id           Int      @id @default(autoincrement())
+  location_id  String   @db.VarChar(255)
+  place_name   String   @db.VarChar(255)
+  place_type   String   @db.VarChar(255)
+  coordinates  String   @db.VarChar(255)
+  text         String   @db.VarChar(255)
+  region_id    String?  @db.VarChar(255)
+  region_text  String?  @db.VarChar(255)
+  country_id   String?  @db.VarChar(255)
+  country_text String?  @db.VarChar(255)
+  created_at   DateTime @default(now())
+  updated_at   DateTime @default(now())
+  user_id      String   @db.VarChar(255)
+  image        Image[]
+  user         User     @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model Review {
+  id              Int              @id @default(autoincrement())
+  title           String           @db.VarChar(255)
+  text            String           @db.VarChar(4000)
+  rating          Int
+  published       Boolean          @default(true)
+  created_at      DateTime         @default(now())
+  updated_at      DateTime         @default(now())
+  user_id         String           @db.VarChar(255)
+  author_id       String           @db.VarChar(255)
+  author          User             @relation("review_author_id", fields: [author_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  user            User             @relation("review_user_id", fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  review_response ReviewResponse[]
+}
+
+model ReviewResponse {
+  id         Int      @id @default(autoincrement())
+  text       String   @db.VarChar(4000)
+  published  Boolean  @default(true)
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now())
+  author_id  String   @db.VarChar(255)
+  review_id  Int
+  user       User     @relation(fields: [author_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  review     Review   @relation(fields: [review_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model Sport {
+  id            Int       @id @default(autoincrement())
+  level         Int
+  created_at    DateTime  @default(now())
+  updated_at    DateTime  @default(now())
+  user_id       String    @db.VarChar(255)
+  sport_type_id Int
+  sport_type    SportType @relation(fields: [sport_type_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  user          User      @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model SportType {
+  id         Int      @id @default(autoincrement())
+  title      String   @db.VarChar(255)
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now())
+  sport      Sport[]
+}
+
+model Tag {
+  id         Int       @id @default(autoincrement())
+  text       String    @db.VarChar(4000)
+  created_at DateTime  @default(now())
+  updated_at DateTime  @default(now())
+  tag_user   TagUser[]
+}
+
+model TagUser {
+  id         Int      @id @default(autoincrement())
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now())
+  user_id    String   @db.VarChar(255)
+  tag_id     Int
+  tag        Tag      @relation(fields: [tag_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  user       User     @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model User {
+  id                   String           @id @db.VarChar(255)
+  name                 String           @db.VarChar(255)
+  username             String           @unique(map: "user_username_unique") @db.VarChar(255)
+  blacklisted          Boolean          @default(false)
+  is_guide             Boolean
+  average_rating       Float?           @default(0)
+  number_rating        Int?             @default(0)
+  created_at           DateTime         @default(now())
+  updated_at           DateTime         @default(now())
+  image                Image[]
+  location             Location[]
+  review_review_author Review[]         @relation("review_author_id")
+  review_review_user   Review[]         @relation("review_user_id")
+  review_response      ReviewResponse[]
+  sport                Sport[]
+  tag_user             TagUser[]
+  user_review_meta     UserReviewMeta[] @ignore
+  vita                 Vita[]
+}
+
+model UserReviewMeta {
+  id             Int      @id @default(autoincrement())
+  average_rating Float    @default(0)
+  number_rating  Int      @default(0)
+  created_at     DateTime @default(now())
+  updated_at     DateTime @default(now())
+  user_id        String   @unique @db.VarChar(255)
+  user           User     @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+}
+
+model Vita {
+  id           Int      @id @default(autoincrement())
+  title        String   @db.VarChar(200)
+  text         String   @db.VarChar(4000)
+  from_date    DateTime @db.Date
+  to_date      DateTime @db.Date
+  is_current   Boolean  @default(true)
+  is_published Boolean  @default(true)
+  created_at   DateTime @default(now())
+  updated_at   DateTime @default(now())
+  user_id      String   @db.VarChar(255)
+  user         User     @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}

@@ -1,0 +1,60 @@
+{
+    "name": "lambda-layer-services",
+    "version": "1.0.0",
+    "scripts": {
+        "dev:rest": "serverless offline --stage local",
+        "dev": "ts-node ./src/handlers/index.ts"
+    },
+    "author": "",
+    "license": "ISC",
+    "dependencies": {
+        "@elastic/elasticsearch": "^7.9.1",
+        "@prisma/client": "^3.3.0",
+        "apollo-server-lambda": "^2.19.2",
+        "aws-lambda": "^1.0.6",
+        "aws-sdk": "^2.781.0",
+        "axios": "^0.24.0",
+        "blurhash": "^1.1.3",
+        "chalk": "^4.1.0",
+        "class-validator": "^0.12.2",
+        "commander": "^6.1.0",
+        "graphql": "^15.4.0",
+        "immer": "^8.0.0",
+        "jsonwebtoken": "^8.5.1",
+        "jwk-to-pem": "^2.0.4",
+        "limax": "^2.1.0",
+        "node-fetch": "^2.6.1",
+        "prisma": "^3.3.0",
+        "reflect-metadata": "^0.1.13",
+        "sharp": "^0.27.0",
+        "type-graphql": "^1.1.0",
+        "waait": "^1.0.5",
+        "winston": "^3.3.3"
+    },
+    "devDependencies": {
+        "@types/node": "^14.17.3",
+        "@types/serverless": "^1.78.29",
+        "prettier": "^2.3.1",
+        "serverless": "^2.45.2",
+        "serverless-dotenv-plugin": "^3.10.0",
+        "serverless-esbuild": "^1.16.1",
+        "serverless-offline": "^8.2.0",
+        "serverless-plugin-ifelse": "^1.0.7",
+        "serverless-plugin-typescript": "^2.1.0",
+        "serverless-webpack": "^5.5.5",
+        "serverless-webpack-layers": "^1.1.1",
+        "ts-loader": "^9.2.6",
+        "webpack": "^5.61.0",
+        "webpack-node-externals": "^3.0.0",
+        "database": "./layers/database/lambda-layers-database/dist"
+    },
+    "baseUrl": ".",
+    "paths": {
+        "common/uuid": [
+            "layers/externals/node_modules/uuid"
+        ],
+        "/opt/externals/*": [
+            "layers/externals/*"
+        ]
+    }
+}

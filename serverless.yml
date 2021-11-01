@@ -1,0 +1,42 @@
+service: my-app
+frameworkVersion: '2.64'
+useDotenv: true
+variablesResolutionMode: 20210326
+configValidationMode: error
+
+custom:
+    stage: ${opt:stage, self:provider.stage}
+
+    webpack:
+        webpackConfig: ./webpack.config.js
+        includeModules:
+            forceExclude:
+                - database
+                - common/uuid
+        packager: yarn
+
+package:
+    excludeDevDependencies: true
+
+provider:
+    name: aws
+    region: us-east-1
+    stage: dev
+    runtime: nodejs14.x
+    lambdaHashingVersion: 20201221
+
+plugins:
+    - serverless-dotenv-plugin
+    - serverless-webpack
+    - serverless-offline
+
+functions:
+    getRecords:
+        handler: src/handlers/index.getRecords
+        events:
+            - http:
+                  path: /getRecords
+                  method: get
+        # layers:
+        # - ${cf:data-layer-${self:custom.stage}.DatabaseLayerExport}
+        # - ${cf:externals-layer-${self:custom.stage}.ExternalLayerExport}
